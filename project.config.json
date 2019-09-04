@@ -1,0 +1,13 @@
+{
+  "miniprogramRoot": "./src",
+  "projectname": "demo",
+  "description": "taro架构测试 demo",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram"
+}
