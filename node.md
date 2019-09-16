@@ -47,3 +47,18 @@
   > 将本地资源上传到服务器。客户端发起一个 HTTPS POST 请求，其中 content-type 为 multipart/form-data。
 - `Taro.previewImage({})`
   > 在新页面中全屏预览图片。预览的过程中用户可以进行保存图片、发送给朋友等操作
+
+## 日历相关
+
+- Date.UTC
+  > `UTC()` 方法可根据世界时返回 1970 年 1 月 1 日 到指定日期的毫秒数。
+  > `Date.UTC(year<必填>,month<必填>,day<必填>,hours<可填>,minutes<可填>,seconds<可填>,ms<可填>)` > `Date.UTC()` 方法的参数指定日期和时间，它们都是 `UTC` 时间，处于 `GMT` 时区。指定的 `UTC` 时间将转换成毫秒的形式，这样构造函数 `Date()` 和方法 `Date.setTime()` 就可以使用它了。
+  > 例子
+
+```js
+var d = Date.UTC(2005, 7, 8);
+document.write(d); //1123459200000
+```
+
+- `DateValue.getDay()` 方法可返回表示星期的某一天的数字。
+  > `DateValue` 所指的星期中的某一天，使用本地时间。返回值是 0（周日） 到 6（周六） 之间的一个整数。

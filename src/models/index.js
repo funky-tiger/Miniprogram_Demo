@@ -1,7 +1,8 @@
 /*
  * create by tiger
- * Time:2019-8-1 10:2:7
+ * Time:2019-9-16 19:55:2
  */
+import calendar from "../pages/calendar/model";
 import home from "../pages/home/model";
 
-export default [home];
+export default [calendar, home];

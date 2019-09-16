@@ -115,7 +115,10 @@ export default class Index extends Component {
       context.draw();
     });
   };
-  componentDidMount = () => {};
+  componentDidMount = () => {
+    console.log(new Date());
+    console.log(Date.now());
+  };
 
   render() {
     return (
