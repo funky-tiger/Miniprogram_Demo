@@ -10,7 +10,7 @@ import { connect } from "@tarojs/redux";
 }))
 export default class Calendar extends Component {
   config = {
-    navigationBarTitleText: "Date"
+    navigationBarTitleText: "DateDemo"
   };
   constructor() {
     this.state = {
@@ -174,7 +174,7 @@ export default class Calendar extends Component {
                 className={styles.leftBgView}
                 onClick={this.ToggleMonth.bind(this, "prev")}
               >
-                <View className={styles.leftView}>《</View>
+                <View className={styles.leftView}>上一月</View>
               </View>
               <View className={styles.centerView}>
                 {currentYear || "--"} 年 {currentMonth || "--"} 月
@@ -183,7 +183,7 @@ export default class Calendar extends Component {
                 className={styles.rightBgView}
                 onClick={this.ToggleMonth.bind(this, "next")}
               >
-                <View className={styles.rightView}>》</View>
+                <View className={styles.rightView}>下一月</View>
               </View>
             </View>
             <View className={styles.weekBgView}>
@@ -218,7 +218,6 @@ export default class Calendar extends Component {
               })}
             </View>
           </View>
-          <View>点击日期选择</View>
         </View>
       </View>
     );
