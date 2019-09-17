@@ -48,7 +48,7 @@ export default class Calendar extends Component {
     const currentDay = date.getDate();
     const currentDayInd = currentDay - 1;
     console.log(`日期下标：${currentDayInd}`);
-    let timeRangeArr = this.checkMonthRange("init", currentYear, currentMonth); // 年月范围解析
+    let timeRangeArr = this.checkMonthRange(currentYear, currentMonth); // 年月范围解析
     let allDays = this.getRangeTimeArr(timeRangeArr); // 天范围解析
     let empytGrids = this.checkEmptyDays(
       timeRangeArr[0]._year,
@@ -68,8 +68,8 @@ export default class Calendar extends Component {
     });
   };
 
-  // 获取当前月的天数
   getMonthAllDays = (year, month) => {
+    // 获取当前月的天数
     let _daysArr = [];
     const thisMonthDays = this.checkMonthAllDays(year, month);
     for (let i = 1; i <= thisMonthDays; i++) {
@@ -78,7 +78,6 @@ export default class Calendar extends Component {
     return _daysArr;
   };
 
-  // 获取时间范围
   getRangeTimeArr = arr => {
     let _rangeAllDaysArr = [];
     for (let i = 0; i < arr.length; i++) {
@@ -93,7 +92,6 @@ export default class Calendar extends Component {
     return _rangeAllDaysArr;
   };
 
-  // 解析 天 月 年 之间的关系
   resolveDayRelationshop = (arr, year, month) => {
     let _arr = [];
     for (let i = 0; i < arr.length; i++) {
@@ -102,50 +100,45 @@ export default class Calendar extends Component {
     return _arr;
   };
 
-  // 获取本月所有的天数
-  checkMonthRange = (type, year, month) => {
+  checkMonthRange = (year, month) => {
     let _RangeArr = [];
-    if (type === "init" || type === "scrollToUp") {
-      if (month - 3 < 1) {
-        _RangeArr.push({ _year: year - 1, _month: month - 3 + 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month - 3 });
-      }
 
-      if (month - 2 < 1) {
-        _RangeArr.push({ _year: year - 1, _month: month - 2 + 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month - 2 });
-      }
-
-      if (month - 1 < 1) {
-        _RangeArr.push({ _year: year - 1, _month: month - 1 + 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month - 1 });
-      }
-    }
-    if (type === "init") {
-      _RangeArr.push({ _year: year, _month: month });
+    if (month - 3 < 1) {
+      _RangeArr.push({ _year: year - 1, _month: month - 3 + 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month - 3 });
     }
 
-    if (type === "init" || type === "scrollToDown") {
-      if (month + 1 > 12) {
-        _RangeArr.push({ _year: year + 1, _month: month + 1 - 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month + 1 });
-      }
+    if (month - 2 < 1) {
+      _RangeArr.push({ _year: year - 1, _month: month - 2 + 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month - 2 });
+    }
 
-      if (month + 2 > 12) {
-        _RangeArr.push({ _year: year + 1, _month: month + 2 - 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month + 2 });
-      }
+    if (month - 1 < 1) {
+      _RangeArr.push({ _year: year - 1, _month: month - 1 + 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month - 1 });
+    }
 
-      if (month + 3 > 12) {
-        _RangeArr.push({ _year: year + 1, _month: month + 3 - 12 });
-      } else {
-        _RangeArr.push({ _year: year, _month: month + 3 });
-      }
+    _RangeArr.push({ _year: year, _month: month });
+
+    if (month + 1 > 12) {
+      _RangeArr.push({ _year: year + 1, _month: month + 1 - 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month + 1 });
+    }
+
+    if (month + 2 > 12) {
+      _RangeArr.push({ _year: year + 1, _month: month + 2 - 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month + 2 });
+    }
+
+    if (month + 3 > 12) {
+      _RangeArr.push({ _year: year + 1, _month: month + 3 - 12 });
+    } else {
+      _RangeArr.push({ _year: year, _month: month + 3 });
     }
 
     return _RangeArr;
@@ -251,7 +244,8 @@ export default class Calendar extends Component {
     } = this.state;
     let scrollTop = e.detail.scrollTop;
 
-    console.log(e.detail.scrollTop, MonthDistanceArr);
+    // timeRangeArr.length currentMonth currentYear
+    console.log(e.detail.scrollTop);
     for (let i = 0; i < MonthDistanceArr.length; i++) {
       if (scrollTop < MonthDistanceArr[0]) {
         // console.log(
@@ -297,12 +291,11 @@ export default class Calendar extends Component {
     let _currentMonthScrollTop = 0;
     for (let i = 0; i < timeRangeArr.length - 1; i++) {
       if (arr[i] && arr[i][0] && _arr.indexOf(arr[i][0].top) == -1) {
-        console.log("arr[i][0]", arr[i][0]);
         _arr.push(arr[i][0].top);
         // tiger201961
-        // if ("tiger" + currentYear + "" + currentMonth + "1" === arr[i][0].id) {
-        //   _currentMonthScrollTop = arr[i][0].top;
-        // }
+        if ("tiger" + currentYear + "" + currentMonth + "1" === arr[i][0].id) {
+          _currentMonthScrollTop = arr[i][0].top;
+        }
       }
     }
     this.setState({
@@ -310,8 +303,6 @@ export default class Calendar extends Component {
       currentMonthScrollTop: _currentMonthScrollTop
     });
   };
-
-  // 获取滚动元素Dom相关
   checkDomInfo = () => {
     const { timeRangeArr } = this.state;
     let obj = Taro.createSelectorQuery();
@@ -349,57 +340,10 @@ export default class Calendar extends Component {
   };
 
   handleScrollToUpper = () => {
-    const { timeRangeArr, daysArr } = this.state;
-
-    // 时间范围
-    let _timeRangeArr = this.checkMonthRange(
-      "scrollToUp",
-      timeRangeArr[0]._year,
-      timeRangeArr[0]._month
-    );
-    let TimeRangeArr = _timeRangeArr.concat(timeRangeArr);
-
-    // 天数数组
-    let _allDays = this.getRangeTimeArr(_timeRangeArr); // 天范围解析
-    let AllDays = _allDays.concat(daysArr);
-    console.log("AllDays:", AllDays);
-
-    // 占位符
-    let _empytGrids = this.checkEmptyDays(
-      _timeRangeArr[0]._year,
-      _timeRangeArr[0]._month
-    );
-
-    this.setState(
-      {
-        // scrollYear: currentYear,
-        // scrollMonth: currentMonth,
-        timeRangeArr: TimeRangeArr,
-        empytGrids: _empytGrids,
-        daysArr: AllDays
-      },
-      () => {
-        this.checkDomInfo();
-        console.log("更新数据后;", this.state.timeRangeArr, this.state.daysArr);
-      }
-    );
-
-    console.log("将要更新顶部了", timeRangeArr[0], _timeRangeArr, _allDays);
+    console.log("将要更新顶部了");
   };
   handleScrolltolower = () => {
-    const { timeRangeArr } = this.state;
-
-    let _timeRangeArr = this.checkMonthRange(
-      "scrollToDown",
-      timeRangeArr[timeRangeArr.length - 1]._year,
-      timeRangeArr[timeRangeArr.length - 1]._month
-    );
-
-    console.log(
-      "将要更新底部了",
-      timeRangeArr[timeRangeArr.length - 1],
-      _timeRangeArr
-    );
+    console.log("将要更新底部了");
   };
 
   render() {

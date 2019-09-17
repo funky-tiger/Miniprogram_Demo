@@ -10,6 +10,7 @@
     color: #6666cc;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
 
   .canlendarTopView {
@@ -20,7 +21,16 @@
     align-items: center;
     justify-content: center;
   }
-
+  .calendarView {
+    margin: 0;
+    padding: 0;
+  }
+  .dateTitle {
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+    // width: 100%;
+  }
   .leftBgView {
     text-align: right;
     height: 80rpx;
@@ -79,7 +89,7 @@
   }
 
   .dateBgView {
-    height: 500rpx;
+    // height: 500rpx;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -116,5 +126,9 @@
     border-radius: 50%;
     color: #fff;
     background-color: #6666cc;
+  }
+
+  .scrollActiveMonth {
+    color: #000;
   }
 }
