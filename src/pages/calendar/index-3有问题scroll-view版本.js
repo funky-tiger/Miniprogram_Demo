@@ -2,7 +2,7 @@
 /* eslint-disable import/first */
 /* eslint-disable react/no-unused-state */
 import Taro, { Component } from "@tarojs/taro";
-import { View } from "@tarojs/components";
+import { View, ScrollView } from "@tarojs/components";
 import styles from "./index.module.less";
 import { connect } from "@tarojs/redux";
 
@@ -15,17 +15,24 @@ export default class Calendar extends Component {
   };
   constructor() {
     this.state = {
+      touchDownY: 0, // 手指按下的位置
+      scrollViewHeight: 0, // scroll-view的高度
+      currentScrollTop: 0, // 当前滚动距顶部的高度
       fistMonthDistance: 0, // 第一个月份与第二个月份的间隔
+      CalendarViewHeight: 0, // 当前日历的总高度
       weeksChArr: ["日", "一", "二", "三", "四", "五", "六"],
       timeRangeArr: [], // 时间范围
       empytGrids: [], // 空的占位符
       daysArr: [], // 每月的天数
       currentYear: "", // 当前年
       currentMonth: "", // 当前月
+
       scrollYear: "", // 滑动到 年
       scrollMonth: "", // 滑动到 月
+
       currentDay: "", // 当前日
       currentDayInd: "", // 当前日下标
+      allMonthHeight: 0, // 所有月份总高度
       monthHeight: 0, // 每个月份的高度
       MonthDistanceArr: [] // 月份间隔距离
     };
@@ -34,11 +41,10 @@ export default class Calendar extends Component {
   componentDidMount = () => {
     this.initDate();
     setTimeout(() => {
-      this.checkDomInfo("init");
+      this.checkDomInfo();
     }, 0);
   };
 
-  // 初始化
   initDate = () => {
     const date = new Date();
     const currentYear = date.getFullYear();
@@ -103,8 +109,7 @@ export default class Calendar extends Component {
   // 获取本月所有的天数
   checkMonthRange = (type, year, month) => {
     let _RangeArr = [];
-    // if (type === "init" || type === "scrollToUp") {
-    if (type === "scrollToUp") {
+    if (type === "init" || type === "scrollToUp") {
       if (month - 3 < 1) {
         _RangeArr.push({ _year: year - 1, _month: month - 3 + 12 });
       } else {
@@ -241,36 +246,52 @@ export default class Calendar extends Component {
     }
   };
 
-  // 更新日历数据
-  handleScrolltolower = () => {
-    const { timeRangeArr } = this.state;
-    // 时间范围
-    let _timeRangeArr = this.checkMonthRange(
-      "scrollToDown",
-      timeRangeArr[timeRangeArr.length - 1]._year,
-      timeRangeArr[timeRangeArr.length - 1]._month
-    );
-    // 天数数组
-    let _allDays = this.getRangeTimeArr(_timeRangeArr); // 天范围解析
-    this.setState(
-      {
-        timeRangeArr: this.state.timeRangeArr.concat(_timeRangeArr),
-        daysArr: this.state.daysArr.concat(_allDays)
-      },
-      () => {
-        this.checkDomInfo("scroll");
-        console.log("更新数据后;", this.state.timeRangeArr, this.state.daysArr);
-      }
-    );
-  };
+  onScroll(e) {
+    const {
+      timeRangeArr,
+      allMonthHeight,
+      monthHeight,
+      MonthDistanceArr
+    } = this.state;
+    let scrollTop = e.detail.scrollTop;
 
-  // 获取每月1号元素距离顶部的高度
+    for (let i = 0; i < MonthDistanceArr.length; i++) {
+      if (scrollTop < MonthDistanceArr[0]) {
+        this.setState({
+          scrollYear: timeRangeArr[0]._year,
+          scrollMonth: timeRangeArr[0]._month
+        });
+      } else if (
+        scrollTop >= MonthDistanceArr[i] &&
+        scrollTop < MonthDistanceArr[i + 1]
+      ) {
+        this.setState({
+          scrollYear: timeRangeArr[i + 1]._year,
+          scrollMonth: timeRangeArr[i + 1]._month
+        });
+      } else if (scrollTop >= MonthDistanceArr[MonthDistanceArr.length - 1]) {
+        this.setState({
+          scrollYear: timeRangeArr[timeRangeArr.length - 1]._year,
+          scrollMonth: timeRangeArr[timeRangeArr.length - 1]._month
+        });
+      }
+    }
+  }
+
   checkHeight = arr => {
-    const { timeRangeArr } = this.state;
+    // 获取每月1号元素距离顶部的高度
+    const { timeRangeArr, currentYear, currentMonth } = this.state;
     let _arr = [];
+    let _currentMonthScrollTop = 0;
+    console.log("获取每月1号元素距离顶部的高度:", arr);
     for (let i = 0; i < timeRangeArr.length - 1; i++) {
       if (arr[i] && arr[i][0] && _arr.indexOf(arr[i][0].top) == -1) {
+        // console.log("arr[i][0]", arr[i][0]);
         _arr.push(arr[i][0].top);
+        // tiger201961
+        // if ("tiger" + currentYear + "" + currentMonth + "1" === arr[i][0].id) {
+        //   _currentMonthScrollTop = arr[i][0].top;
+        // }
       }
     }
     this.setState(
@@ -284,10 +305,119 @@ export default class Calendar extends Component {
     );
   };
 
-  // 获取每月1号元素距离顶部的高度
-  checkHeightByScroll = arr => {
+  // 获取滚动元素Dom相关
+  checkDomInfo = () => {
+    const { timeRangeArr } = this.state;
+    console.log("1-获取滚动元素Dom相关-timeRangeArr", timeRangeArr);
+    let obj = Taro.createSelectorQuery();
+    const _this = this;
+    for (let i = 0; i < timeRangeArr.length; i++) {
+      obj
+        .selectAll(
+          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
+        )
+        .boundingClientRect();
+      obj.exec(function(rect) {
+        if (rect.length >= timeRangeArr.length) {
+          if (rect.length !== 0) {
+            console.log("2-获取滚动元素Dom相关-rect", rect);
+
+            _this.checkHeight(rect);
+          }
+        }
+      });
+    }
+    obj
+      .selectAll("#calendarView")
+      .boundingClientRect(function(rect) {
+        console.log("3-获取滚动元素Dom相关-rect", rect);
+
+        let view_height = rect[0].height;
+        let everyMonthHeight = view_height / timeRangeArr.length;
+
+        let _arr = [];
+        for (let i = 1; i < timeRangeArr.length + 1; i++) {
+          _arr.push(i * (Number(everyMonthHeight.toFixed(2)) + 5));
+        }
+        _this.setState({
+          allMonthHeight: view_height,
+          monthHeight: Number(everyMonthHeight.toFixed(2)) + 5
+        });
+      })
+      .exec();
+  };
+
+  handleScrollToUpper = () => {
+    console.log("将要更新顶部了");
+  };
+  handleScrolltolower = e => {
+    const { timeRangeArr } = this.state;
+    // 时间范围
+    let _timeRangeArr = this.checkMonthRange(
+      "scrollToDown",
+      timeRangeArr[timeRangeArr.length - 1]._year,
+      timeRangeArr[timeRangeArr.length - 1]._month
+    );
+    // 天数数组
+    let _allDays = this.getRangeTimeArr(_timeRangeArr); // 天范围解析
+    this.setState(
+      {
+        timeRangeArr: this.state.timeRangeArr.concat(_timeRangeArr),
+        daysArr: this.state.daysArr.concat(_allDays)
+        // timeRangeArr: [],
+        // daysArr: []
+      },
+      () => {
+        console.log("更新数据后;", this.state.timeRangeArr, this.state.daysArr);
+      }
+    );
+    setTimeout(() => {
+      this.checkDomInfo1(this.state.timeRangeArr.concat(_timeRangeArr));
+    }, 1000);
+    console.log(
+      "将要更新底部了",
+      timeRangeArr[timeRangeArr.length - 1],
+      _timeRangeArr
+    );
+  };
+
+  // 获取滚动元素Dom相关
+  checkDomInfo1 = timeRangeArr => {
+    console.log("1-获取滚动元素Dom相关-timeRangeArr", timeRangeArr);
+    let obj = Taro.createSelectorQuery();
+    const _this = this;
+    for (let i = 0; i < timeRangeArr.length; i++) {
+      obj
+        .selectAll(
+          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
+        )
+        .boundingClientRect();
+      obj.exec(function(rect) {
+        if (rect.length >= timeRangeArr.length) {
+          if (rect.length !== 0) {
+            console.log("2-获取滚动元素Dom相关-rect", rect);
+
+            _this.checktest(rect);
+          }
+        }
+      });
+    }
+    obj
+      .selectAll("#calendarView")
+      .boundingClientRect(function(rect) {
+        console.log("3-获取滚动元素Dom相关-rect", rect);
+        let view_height = rect[0].height;
+        _this.setState({
+          allMonthHeight: view_height
+        });
+      })
+      .exec();
+  };
+
+  checktest = arr => {
     const { timeRangeArr, fistMonthDistance } = this.state;
     let _arr = [];
+    console.log("获取每月1号元素距离顶部的高度:", arr);
     for (let i = 0; i < timeRangeArr.length - 1; i++) {
       if (arr[i] && arr[i][0] && _arr.indexOf(arr[i][0].top) == -1) {
         if (arr[0][0].top < 0) {
@@ -310,105 +440,60 @@ export default class Calendar extends Component {
       }
     );
   };
-
-  // 获取滚动元素Dom相关
-  checkDomInfo = type => {
-    const { timeRangeArr } = this.state;
-    let obj = Taro.createSelectorQuery();
-    const _this = this;
-    for (let i = 0; i < timeRangeArr.length; i++) {
-      obj
-        .selectAll(
-          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
-        )
-        .boundingClientRect();
-      obj.exec(function(rect) {
-        if (rect.length >= timeRangeArr.length) {
-          if (rect.length !== 0) {
-            if (type === "init") {
-              _this.checkHeight(rect);
-            } else if (type === "scroll") {
-              _this.checkHeightByScroll(rect);
-            }
-          }
-        }
-      });
-    }
-    if (type === "init") {
-      obj
-        .selectAll("#calendarView")
-        .boundingClientRect(function(rect) {
-          let view_height = rect[0].height;
-          let everyMonthHeight = view_height / timeRangeArr.length;
-
-          let _arr = [];
-          for (let i = 1; i < timeRangeArr.length + 1; i++) {
-            _arr.push(i * (Number(everyMonthHeight.toFixed(2)) + 5));
-          }
-          _this.setState({
-            monthHeight: Number(everyMonthHeight.toFixed(2)) + 5
-          });
-        })
-        .exec();
-    }
-  };
-
   handleScrollStart = e => {
-    // let current_y = e.changedTouches[0].clientY;
-  };
-
-  handleScrollEnd = e => {
-    // let current_y = e.changedTouches[0].clientY;
-  };
-  handleScrollMove = e => {
-    const { monthHeight, fistMonthDistance } = this.state;
-    const _this = this;
-    let obj = Taro.createSelectorQuery();
-    obj
-      .selectAll("#calendarView")
+    console.log("handleScrollStart");
+    let _this = this;
+    let touchDownY = e.touches[0].clientY;
+    this.setState({ touchDownY });
+    // 获取 scrollview 的高度
+    Taro.createSelectorQuery()
+      .select("#scrollview")
       .boundingClientRect(function(rect) {
-        let _viewHeight = rect[0].height;
-        let _scrollHeight = -(rect[0].top - fistMonthDistance);
-        _this.checkDateYearMonth(_scrollHeight);
-        // console.log("元素的高度:", _viewHeight, "滚动的高度:", _scrollHeight);
-        // console.log(
-        //   "元素底部距底部的高度:",
-        //   _viewHeight - monthHeight - _scrollHeight
-        // );
-        if (_viewHeight - monthHeight - _scrollHeight < 200) {
-          console.log("得更新了兄弟");
-          _this.throttle(_this.handleScrolltolower(), 1000, { leading: false });
-        }
+        _this.setState({ scrollViewHeight: rect.height });
       })
+      .exec();
+
+    // 获取 calendarView 的高度和当前的 scrollTop 位置
+    Taro.createSelectorQuery()
+      .select("#calendarView")
+      .fields(
+        {
+          scrollOffset: true,
+          size: true
+        },
+        function(rect) {
+          _this.setState({ CalendarViewHeight: rect.height });
+          _this.setState({ currentScrollTop: rect.scrollTop });
+        }
+      )
       .exec();
   };
 
-  // 检测当前滑动到某月份
-  checkDateYearMonth = scrollTop => {
-    const { timeRangeArr, MonthDistanceArr } = this.state;
-    for (let i = 0; i < MonthDistanceArr.length; i++) {
-      if (scrollTop < MonthDistanceArr[0]) {
-        this.setState({
-          scrollYear: timeRangeArr[0]._year,
-          scrollMonth: timeRangeArr[0]._month
-        });
-      } else if (
-        scrollTop >= MonthDistanceArr[i] &&
-        scrollTop < MonthDistanceArr[i + 1]
-      ) {
-        this.setState({
-          scrollYear: timeRangeArr[i + 1]._year,
-          scrollMonth: timeRangeArr[i + 1]._month
-        });
-      } else if (scrollTop >= MonthDistanceArr[MonthDistanceArr.length - 1]) {
-        this.setState({
-          scrollYear: timeRangeArr[timeRangeArr.length - 1]._year,
-          scrollMonth: timeRangeArr[timeRangeArr.length - 1]._month
-        });
-      }
+  handleScrollEnd = e => {
+    console.log("handleScrollEnd");
+    let current_y = e.changedTouches[0].clientY;
+    let _this = this;
+    let { currentScrollTop, scrollViewHeight, touchDownY } = this.state;
+    // console.log('current_y',current_y,'currentScrollTop',currentScrollTop,'scrollViewHeight',scrollViewHeight,'')
+    if (
+      current_y > touchDownY &&
+      current_y - touchDownY > 20 &&
+      currentScrollTop == 0
+    ) {
+      console.log("下拉刷新 的请求和逻辑处理等");
+      // 下拉刷新 的请求和逻辑处理等
+    } else if (
+      current_y < touchDownY &&
+      touchDownY - current_y >= 20 &&
+      scrollViewHeight - 280 == currentScrollTop
+    ) {
+      console.log("上拉加载 的请求和逻辑处理等");
+      // 上拉加载 的请求和逻辑处理等
     }
   };
-
+  /**
+   *
+   */
   render() {
     const {
       scrollYear,
@@ -416,11 +501,27 @@ export default class Calendar extends Component {
       empytGrids,
       weeksChArr,
       daysArr,
-      currentDayInd
+      currentDayInd,
+      timeRangeArr,
+      allMonthHeight,
+      monthHeight
     } = this.state;
+    // console.log(
+    //   "每月高度:",
+    //   monthHeight,
+    //   "所有高度:",
+    //   allMonthHeight,
+    //   "月份个数:",
+    //   timeRangeArr.length
+    // );
     const scrollStyle = {
       height: "280rpx"
     };
+    const scrollTop =
+      timeRangeArr.length % 2 === 0
+        ? monthHeight * timeRangeArr.length
+        : (monthHeight * (timeRangeArr.length - 1)) / 2 - 5;
+
     return (
       <View className={styles.calendarPage}>
         <View className={styles.canlendarBgView}>
@@ -455,15 +556,21 @@ export default class Calendar extends Component {
               </View>
             </View>
 
-            <View
-              className={styles.scrollView}
-              style={{ height: scrollStyle.height }}
+            <ScrollView
+              id='scrollview'
+              scrollY
+              scrollTop={scrollTop}
+              style={scrollStyle}
+              lowerThreshold={200} // 距顶部/左边多远时（单位 px），触发 scrolltoupper 事件
+              upperThreshold={200} // 距底部/右边多远时（单位 px），触发 scrolltolower 事件
+              onScrollToUpper={this.handleScrollToUpper} // 使用箭头函数的时候 可以这样写 `onScrollToUpper={this.onScrollToUpper}`
+              onScrolltolower={this.handleScrolltolower}
+              onScroll={this.onScroll}
             >
               <View
                 id='calendarView'
-                onTouchMove={this.handleScrollMove}
-                onTouchStart={this.handleScrollStart}
-                onTouchEnd={this.handleScrollEnd}
+                // onTouchEnd={this.handleScrollEnd}
+                // onTouchStart={this.handleScrollStart}
                 className={styles.dateBgView}
               >
                 {/* 空日期展位符 */}
@@ -495,42 +602,13 @@ export default class Calendar extends Component {
                   );
                 })}
               </View>
-            </View>
+            </ScrollView>
           </View>
         </View>
       </View>
     );
   }
 
-  // 节流
-  throttle = (func, wait, options) => {
-    let pre = 0;
-    let timeout;
-    let now = Date.now();
-
-    /* leading为false 把当前时间赋给上次时间pre */
-    if (!options.leading) pre = now;
-
-    return function() {
-      if (now - pre > wait) {
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        func.apply(this, arguments);
-        pre = now;
-      } else if (!timeout && options.trailing !== false) {
-        timeout = setTimeout(later, wait - (now - pre));
-      }
-    };
-    function later() {
-      /* 如果leading为false 校正pre时间为0 */
-      pre = options.leading === false ? 0 : Date.now();
-      func.apply(this, arguments);
-    }
-  };
-
-  // 标记相关类名
   checkClassName = (index, currentDayInd, year, month) => {
     const { scrollYear, scrollMonth } = this.state;
     if ((scrollYear === year, scrollMonth === month)) {
