@@ -34,11 +34,10 @@ export default class Calendar extends Component {
   componentDidMount = () => {
     this.initDate();
     setTimeout(() => {
-      this.checkDomInfo("init");
+      this.checkDomInfo();
     }, 0);
   };
 
-  // 初始化
   initDate = () => {
     const date = new Date();
     const currentYear = date.getFullYear();
@@ -241,31 +240,8 @@ export default class Calendar extends Component {
     }
   };
 
-  // 更新日历数据
-  handleScrolltolower = () => {
-    const { timeRangeArr } = this.state;
-    // 时间范围
-    let _timeRangeArr = this.checkMonthRange(
-      "scrollToDown",
-      timeRangeArr[timeRangeArr.length - 1]._year,
-      timeRangeArr[timeRangeArr.length - 1]._month
-    );
-    // 天数数组
-    let _allDays = this.getRangeTimeArr(_timeRangeArr); // 天范围解析
-    this.setState(
-      {
-        timeRangeArr: this.state.timeRangeArr.concat(_timeRangeArr),
-        daysArr: this.state.daysArr.concat(_allDays)
-      },
-      () => {
-        this.checkDomInfo("scroll");
-        console.log("更新数据后;", this.state.timeRangeArr, this.state.daysArr);
-      }
-    );
-  };
-
-  // 获取每月1号元素距离顶部的高度
   checkHeight = arr => {
+    // 获取每月1号元素距离顶部的高度
     const { timeRangeArr } = this.state;
     let _arr = [];
     for (let i = 0; i < timeRangeArr.length - 1; i++) {
@@ -284,8 +260,93 @@ export default class Calendar extends Component {
     );
   };
 
-  // 获取每月1号元素距离顶部的高度
-  checkHeightByScroll = arr => {
+  // 获取滚动元素Dom相关
+  checkDomInfo = () => {
+    const { timeRangeArr } = this.state;
+    let obj = Taro.createSelectorQuery();
+    const _this = this;
+    for (let i = 0; i < timeRangeArr.length; i++) {
+      obj
+        .selectAll(
+          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
+        )
+        .boundingClientRect();
+      obj.exec(function(rect) {
+        if (rect.length >= timeRangeArr.length) {
+          if (rect.length !== 0) {
+            _this.checkHeight(rect);
+          }
+        }
+      });
+    }
+    obj
+      .selectAll("#calendarView")
+      .boundingClientRect(function(rect) {
+        console.log("3-获取滚动元素Dom相关-rect", rect);
+
+        let view_height = rect[0].height;
+        let everyMonthHeight = view_height / timeRangeArr.length;
+
+        let _arr = [];
+        for (let i = 1; i < timeRangeArr.length + 1; i++) {
+          _arr.push(i * (Number(everyMonthHeight.toFixed(2)) + 5));
+        }
+        _this.setState({
+          monthHeight: Number(everyMonthHeight.toFixed(2)) + 5
+        });
+      })
+      .exec();
+  };
+  handleScrolltolower = () => {
+    const { timeRangeArr } = this.state;
+    // 时间范围
+    let _timeRangeArr = this.checkMonthRange(
+      "scrollToDown",
+      timeRangeArr[timeRangeArr.length - 1]._year,
+      timeRangeArr[timeRangeArr.length - 1]._month
+    );
+    // 天数数组
+    let _allDays = this.getRangeTimeArr(_timeRangeArr); // 天范围解析
+    this.setState(
+      {
+        timeRangeArr: this.state.timeRangeArr.concat(_timeRangeArr),
+        daysArr: this.state.daysArr.concat(_allDays)
+      },
+      () => {
+        this.checkDomInfo1(this.state.timeRangeArr.concat(_timeRangeArr));
+        console.log("更新数据后;", this.state.timeRangeArr, this.state.daysArr);
+      }
+    );
+  };
+
+  // 获取滚动元素Dom相关
+  checkDomInfo1 = timeRangeArr => {
+    let obj = Taro.createSelectorQuery();
+    const _this = this;
+    for (let i = 0; i < timeRangeArr.length; i++) {
+      obj
+        .selectAll(
+          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
+        )
+        .boundingClientRect();
+      obj.exec(function(rect) {
+        if (rect.length >= timeRangeArr.length) {
+          if (rect.length !== 0) {
+            _this.checktest(rect);
+          }
+        }
+      });
+    }
+    obj
+      .selectAll("#calendarView")
+      .boundingClientRect(function(rect) {
+        console.log("3-获取滚动元素Dom相关-rect", rect);
+        let view_height = rect[0].height;
+      })
+      .exec();
+  };
+
+  checktest = arr => {
     const { timeRangeArr, fistMonthDistance } = this.state;
     let _arr = [];
     for (let i = 0; i < timeRangeArr.length - 1; i++) {
@@ -310,49 +371,6 @@ export default class Calendar extends Component {
       }
     );
   };
-
-  // 获取滚动元素Dom相关
-  checkDomInfo = type => {
-    const { timeRangeArr } = this.state;
-    let obj = Taro.createSelectorQuery();
-    const _this = this;
-    for (let i = 0; i < timeRangeArr.length; i++) {
-      obj
-        .selectAll(
-          "#tiger" + timeRangeArr[i]._year + "" + timeRangeArr[i]._month + "1"
-        )
-        .boundingClientRect();
-      obj.exec(function(rect) {
-        if (rect.length >= timeRangeArr.length) {
-          if (rect.length !== 0) {
-            if (type === "init") {
-              _this.checkHeight(rect);
-            } else if (type === "scroll") {
-              _this.checkHeightByScroll(rect);
-            }
-          }
-        }
-      });
-    }
-    if (type === "init") {
-      obj
-        .selectAll("#calendarView")
-        .boundingClientRect(function(rect) {
-          let view_height = rect[0].height;
-          let everyMonthHeight = view_height / timeRangeArr.length;
-
-          let _arr = [];
-          for (let i = 1; i < timeRangeArr.length + 1; i++) {
-            _arr.push(i * (Number(everyMonthHeight.toFixed(2)) + 5));
-          }
-          _this.setState({
-            monthHeight: Number(everyMonthHeight.toFixed(2)) + 5
-          });
-        })
-        .exec();
-    }
-  };
-
   handleScrollStart = e => {
     // let current_y = e.changedTouches[0].clientY;
   };
@@ -383,7 +401,7 @@ export default class Calendar extends Component {
       .exec();
   };
 
-  // 检测当前滑动到某月份
+  // 检测当前滑动到某月
   checkDateYearMonth = scrollTop => {
     const { timeRangeArr, MonthDistanceArr } = this.state;
     for (let i = 0; i < MonthDistanceArr.length; i++) {
@@ -530,7 +548,6 @@ export default class Calendar extends Component {
     }
   };
 
-  // 标记相关类名
   checkClassName = (index, currentDayInd, year, month) => {
     const { scrollYear, scrollMonth } = this.state;
     if ((scrollYear === year, scrollMonth === month)) {
