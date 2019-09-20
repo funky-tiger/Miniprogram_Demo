@@ -71,3 +71,17 @@ document.write(d); //1123459200000
 - 1. 月份切换的滚动方式
 - 2. 本月份显示上/下月的剩余天
 - 3. 增加多种用户交互方式
+
+## 小程序高阶组件实现
+
+- 小程序天生不支持高阶组件写法， 在 taro 中 也不能劫持 render 方法
+- 小程序编译后就没有 render 方法了，jsx 部分会被编译成 wxml，return 之前的数据处理会被编译到 \_createData() 方法中
+- 参考 taro-redux 的写法，可以通过劫持\_constructor componentWillMount componentWillUnmount 等方法，来实现对父组件的增强； 从而达到高阶组件的效果
+
+### 参考链接
+
+> https://github.com/NervJS/taro/blob/master/packages/taro-redux/src/connect/connect.js
+
+> https://github.com/NervJS/taro/issues/1155
+
+> https://github.com/NervJS/taro/issues/465
