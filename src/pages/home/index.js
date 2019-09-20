@@ -16,15 +16,18 @@ export default class Index extends Component {
     };
     this.context = null;
   }
+
+  componentDidMount() {
+    console.log("cloneElement", Taro);
+  }
+
   /**记录开始点 */
   bindtouchstart = e => {
-    console.log("起始点", e);
     this.context.moveTo(e.changedTouches[0].x, e.changedTouches[0].y);
   };
 
   /**记录移动点，刷新绘制 */
   bindtouchmove = e => {
-    console.log("移动点", e);
     this.context.lineTo(e.changedTouches[0].x, e.changedTouches[0].y);
     this.context.stroke();
     this.context.draw(true);
@@ -96,7 +99,8 @@ export default class Index extends Component {
     let query = Taro.createSelectorQuery();
     const that = this;
     query.select("#myCanvas").boundingClientRect();
-    console.log(query.select("#myCanvas").boundingClientRect());
+    console.log("cloneElement", Taro);
+
     query.exec(function(rect) {
       // console.log("rect", rect);
       let width = rect[0].width;
