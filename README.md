@@ -8,5 +8,10 @@
   > 相关文档记录: node.md
 
 - demo2:
+
   > src/pages/calendar/index.js: 小程序 自定义日历组件 有多种交互方式
+  > 相关文档记录: node.md
+
+- demo3:
+  > src/pages/formDemo/index.js: 小程序 通过劫持父级组件的 constructor 来实现高阶组件
   > 相关文档记录: node.md
