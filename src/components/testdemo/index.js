@@ -9,6 +9,7 @@ class Testdemo extends Component {
   }
 
   render() {
+    console.log("test:", this);
     return <View className={styles.testdemoPage}>测试component组件</View>;
   }
 }

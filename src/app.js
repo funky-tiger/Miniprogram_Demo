@@ -17,9 +17,9 @@ class App extends Component {
   config = {
     pages: [
       "pages/valiDate/index",
+      "pages/formDemo/index",
       "pages/home/index",
-      "pages/calendar/index",
-      "pages/formDemo/index"
+      "pages/calendar/index"
     ],
     window: {
       backgroundTextStyle: "dark",
