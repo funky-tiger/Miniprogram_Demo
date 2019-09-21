@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import IfromItem from "./IfromItem";
 import Ifrom from "./Ifrom";
+import IfromWrap from "./IfromWrap";
 
-export default Ifrom;
+export { IfromItem, Ifrom, IfromWrap };

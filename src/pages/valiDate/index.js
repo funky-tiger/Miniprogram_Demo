@@ -4,8 +4,11 @@ import { View, Form, Button } from "@tarojs/components";
 import { connect } from "@tarojs/redux";
 import WxValidate from "../../utils/Valiedate";
 // import IFormItem from "../../components/Ifrom/lib/form/index";
-import Ifrom from "../../components/designDemo1/lib/form/index";
-// import Ifrom from "../../components/Ifrom";
+import {
+  Ifrom,
+  IfromWrap,
+  IfromItem
+} from "../../components/designDemo1/lib/form/index";
 import TestDemo from "../../components/testdemo";
 import styles from "./index.module.less";
 
@@ -36,37 +39,10 @@ export default class Validate extends Component {
     return (
       <View className={styles.valiDatePage}>
         <View className='weui-cells__title'>请填写个人信息</View>
-        <Ifrom
-          formItem={[
-            {
-              style: {},
-              label: "姓名",
-              name: "name",
-              value: "王继彪",
-              placeholder: "请输入姓名",
-              rules: { required: true, minlength: 2, maxlength: 5 },
-              messages: {
-                required: "请填写姓名",
-                minlength: "字符过短",
-                maxlength: "字符过长"
-              }
-            },
-            {
-              style: {},
-              label: "手机号",
-              name: "phone",
-              value: "",
-              placeholder: "请输入手机号",
-              rules: { required: true, tel: true },
-              messages: {
-                required: "请填写手机号",
-                tel: "请填写正确的手机号"
-              }
-            }
-          ]}
-          submitOption={{ text: "确定", style: { color: "skyblue" } }}
-          onreceiveSubmit={this.handleSubmit}
-        />
+        <IfromWrap>
+          此处应传递FromItem
+          <IfromItem />
+        </IfromWrap>
       </View>
     );
   }

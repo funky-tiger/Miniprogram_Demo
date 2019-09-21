@@ -72,11 +72,11 @@ document.write(d); //1123459200000
 - 2. 本月份显示上/下月的剩余天
 - 3. 增加多种用户交互方式
 
-## 小程序高阶组件实现
+## 小程序高阶组件的探索和问题
 
 - 小程序天生不支持高阶组件写法， 在 taro 中 也不能劫持 render 方法
 - 小程序编译后就没有 render 方法了，jsx 部分会被编译成 wxml，return 之前的数据处理会被编译到 \_createData() 方法中
-- 参考 taro-redux 的写法，可以通过劫持\_constructor componentWillMount componentWillUnmount 等方法，来实现对父组件的增强； 从而达到高阶组件的效果
+- 参考 taro-redux 的写法，通过劫持\_constructor componentWillMount componentWillUnmount 等方法，来实现对父组件的增强； 从而达到高阶组件的效果
 
 ### 参考链接
 
@@ -88,7 +88,14 @@ document.write(d); //1123459200000
 
 ## 小程序表单验证最佳实践
 
+- 相关问题
+
+  > 将表单验证组件融合到一个组件中，这样带来的问题是 该组件的传参表现过于冗余，不利于代码可读性和美观性
+  > 将表单验证组件单独拆分为`<Form /> 和 <FormItem/>`后, 在 `<Form />`组件中无法通过`{this.props.children}`对`<FormItem/>`进行通信，因为本质上 Taro 的`{this.props.children}`只是微信原生小程序的`solt`
+
 - WxValidate - 表单验证参数
   > https://github.com/funky-tiger/wx-extend/blob/master/docs/components/validate.md
 - 相关 issues
   > https://github.com/NervJS/taro/issues/4128
+- 微信小程序显性 this.props.children
+  > https://nervjs.github.io/taro/docs/children.html

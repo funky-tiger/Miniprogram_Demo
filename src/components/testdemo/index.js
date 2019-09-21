@@ -1,3 +1,4 @@
+/* eslint-disable taro/render-props */
 import Taro, { Component } from "@tarojs/taro";
 import { View } from "@tarojs/components";
 import styles from "./testdemo.module.less";
@@ -10,7 +11,11 @@ class Testdemo extends Component {
 
   render() {
     console.log("test:", this);
-    return <View className={styles.testdemoPage}>测试component组件</View>;
+    return (
+      <View className={styles.testdemoPage}>
+        测试component组件 {this.props.children}
+      </View>
+    );
   }
 }
 
