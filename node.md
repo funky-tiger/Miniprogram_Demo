@@ -85,3 +85,10 @@ document.write(d); //1123459200000
 > https://github.com/NervJS/taro/issues/1155
 
 > https://github.com/NervJS/taro/issues/465
+
+## 小程序表单验证最佳实践
+
+- WxValidate - 表单验证参数
+  > https://github.com/funky-tiger/wx-extend/blob/master/docs/components/validate.md
+- 相关 issues
+  > https://github.com/NervJS/taro/issues/4128

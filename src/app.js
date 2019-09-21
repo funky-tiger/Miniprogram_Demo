@@ -15,7 +15,12 @@ const store = dvaApp.getStore();
 
 class App extends Component {
   config = {
-    pages: ["pages/formDemo/index", "pages/home/index", "pages/calendar/index"],
+    pages: [
+      "pages/valiDate/index",
+      "pages/home/index",
+      "pages/calendar/index",
+      "pages/formDemo/index"
+    ],
     window: {
       backgroundTextStyle: "dark",
       navigationBarBackgroundColor: "#fff",

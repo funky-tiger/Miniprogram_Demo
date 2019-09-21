@@ -2,11 +2,11 @@
 // 组合: 1.组件Form.Item 和 2.高阶函数 Form.senior
 import Taro, { Component } from "@tarojs/taro";
 import { Form } from "@tarojs/components";
-import FormItem from "./FormItem";
+import TigerFormItem from "./FormItem";
 import senior from "./senior";
 
 class TigerForm extends Component {
-  static Item = FormItem;
+  static TigerFormItem = TigerFormItem;
   static senior = senior;
   render() {
     //  <MyForm onSubmit={this.handleSubmit}>
