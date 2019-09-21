@@ -9,7 +9,7 @@
 
 - demo2:
 
-  > src/pages/calendar/index.js: 小程序 自定义日历组件 有多种交互方式
+  > src/pages/calendar/index.js: 小程序 自定义日历组件 多种交互方式
   > 相关文档记录: node.md
 
 - demo3:
